@@ -9,6 +9,8 @@ name: 3-snake
 Let's create our first Ada procedure! We'll add a `Log` method to our noki library for printing messages.
 
 1. **Open the specification file** `src/noki.ads`:
+   - Use the **file explorer** on the left side of the IDE
+   - Navigate to `noki` → `src` → `noki.ads` and click to open it
    - The extension `.ads` means **Ada Specification**
    - This file is the **public interface** of your compilation unit
    - It's like `.h/.hpp` in C/C++, but Ada uses **semantic modules** (called *packages*) instead of text pre-processing
