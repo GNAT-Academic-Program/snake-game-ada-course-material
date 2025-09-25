@@ -19,7 +19,7 @@ tagz:
 createdAt: 2025-05-20
 updatedAt: 2025-05-21
 
-cover: __static__/cover.png
+cover: __static__/render1758673647505.gif
 
 ---
 

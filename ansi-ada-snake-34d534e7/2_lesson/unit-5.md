@@ -23,7 +23,7 @@ Let's test our Log procedure! We'll create an executable program that uses our n
 2. **Create a binary project** to use the noki library:
    - Make sure you're in the `noki` folder:
      ```bash
-     cd ~/noki
+     cd ~/snake-game-ada-course-code/noki
      ```
    - Create a new executable project named `snake_game`:
      ```bash
@@ -35,7 +35,7 @@ Let's test our Log procedure! We'll create an executable program that uses our n
      ```bash
      cd snake_game
      ```
-   - Open the `alire.toml` file and add this:
+   - Open the `~/snake-game-ada-course-code/noki/snake_game/alire.toml` file and add this:
      ```toml
      [[depends-on]]
      noki = "*"
@@ -80,6 +80,7 @@ alr run
 ❌ **If something goes wrong:** If you don't see `Build finished successfully in ...`, re-check the instructions carefully and start again from step 1.
 
 ✅ **Expected result:** On the terminal you should see: `Welcome to my Snake Game!`
+
 
 ::remark-box
 ---
