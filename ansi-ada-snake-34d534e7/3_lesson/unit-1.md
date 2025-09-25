@@ -1,64 +1,46 @@
 ---
 kind: unit
 
-title: Add the Loop
+title: Get Latest Code
 
 name: 1-snake
 ---
 
-Let's create a game loop! This will handle our different gameplay states and keep the game running.
 
-1. **Edit `snake_game.adb`** to add a loop around the existing code
+🚀 Beginning of Lesson 3 — Two Options
 
-2. **Add loop structure** around the `Noki.Log` call:
-   ```ada
-   loop
-      Noki.Log ("Welcome to my Snake Game!");
-   end loop;
-   ```
+Each lesson starts with a new machine, you need to pull the latest code first, then either resume your own progress or start from the official snapshot.
 
-3. **Add a delay** to slow down the loop so we can see the output:
-   - On the line after `Noki.Log ("Welcome to my Snake Game!")` add:
-   ```ada
-   delay 1.0;
-   ```
+🅰️ Option A — Resume from Your Fork (Recommended)
 
-**Your complete code inside the `Snake_Game` procedure should look like this:**
-```ada
-loop
-   Noki.Log ("Welcome to my Snake Game!");
-   delay 1.0;
-end loop;
+Clone your fork (replace <YOUR_GITHUB_USERNAME>):
+
+```
+git clone https://github.com/<YOUR_GITHUB_USERNAME>/snake-game-ada-course-code.git
+cd snake-game-ada-course-code
 ```
 
-## 📋 **Code Review - Complete `snake_game.adb`**
+Check out your saved progress to a branch:
 
-Your complete file should look like this:
-
-```ada
-with Noki;
-
-procedure Snake_Game is
-begin
-   loop
-      Noki.Log ("Welcome to my Snake Game!");
-      delay 1.0;
-   end loop;
-end Snake_Game;
+```
+git checkout -b lesson-03-work origin/lesson-02-work
 ```
 
-**Build and run:**
-```bash
-alr run
+✅ You're now ready to start Lesson 3 from your own progress.
+
+🅱️ Option B — Start from Official Course Snapshot
+
+Clone the official repository (read-only):
+
+```
+git clone https://github.com/GNAT-Academic-Program/snake-game-ada-course-code.git
+cd snake-game-ada-course-code
 ```
 
-❌ **If something goes wrong:** If you don't see `Build finished successfully in ...`, re-check the instructions carefully and start again from step 1.
+Check out the starting point for Lesson 3:
 
-✅ **Expected result:** `Welcome to my Snake Game!` appearing every second over and over.
+```
+git checkout -B lesson-03-work refs/tags/lesson-03-start
+```
 
-::remark-box
----
-kind: warning
----
-🤯 **Heads Up!** This program will run forever! Use `Ctrl+C` in the terminal to stop it.
-::
+✅ You're now starting Lesson 3 from the clean official reference code.

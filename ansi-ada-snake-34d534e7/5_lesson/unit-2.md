@@ -1,180 +1,135 @@
 ---
 kind: unit
 
-title: Convert Pixels to ANSI Strings
+title: We Need Pixels
 
 name: 2-snake
 ---
 
-Let's build a pixel rendering system! We need to convert our pixel model into ANSI escape codes that the terminal can display.
+Let's create pixel abstractions for our terminal game! Our "pixel" combines foreground color, background color, character, and boldness - different from screen pixels but perfect for terminal graphics.
 
-## Understanding Terminal as a 2D Canvas
+## Understanding Ada's Type System
 
-Our rendering target is a modern terminal emulator. With ANSI escape codes we can move the cursor and apply styles, so **the terminal's 2D space acts like a pixel buffer** - a rendered image.
+Before we build pixels, let's understand Ada's powerful type system:
 
-Instead of scattering escape codes everywhere, we'll build semantic helpers to draw pixels.
+**Modular Types:** `type U8_T is mod 2 ** 8` creates a type that wraps around (0-255). When it overflows, it loops back to 0. Perfect for hardware registers and color values.
 
-## 1. Add Wide_Wide_String Support
+**Records:** Like structs in C - group related data together with named fields.
 
-Edit `noki.ads` and add this after the `WWChar_T` subtype:
+**Subtypes:** `subtype Bold_T is Boolean` creates a compatible alias. You can use `Bold_T` anywhere you'd use `Boolean` without conversion.
 
-```ada
-subtype WWStr_T is Wide_Wide_String;
-```
+**Strong Typing:** Ada prevents mixing incompatible types. You can't accidentally add `Miles_T` and `Kilometers_T` - you need explicit conversion. This catches bugs at compile time.
 
-**Why?** In Ada, a String is an array of Character. We need the Wide_Wide (Unicode) version for our pixel rendering.
+1. **Define basic types** in `noki.ads` after `package Noki is`:
+   ```ada
+   subtype WWChar_T is Wide_Wide_Character;  -- Unicode characters (less verbose)
+   
+   type U8_T is mod 2 ** 8 with Size => 8;   -- 0-255, wraps on overflow
+   
+   type Color_T is record                    -- RGB color structure
+      R, G, B : U8_T;
+   end record with Size => 32;
+   
+   subtype Bold_T is Boolean;                -- Semantic clarity over raw Boolean
+   ```
 
-## 2. Create the Pixel-to-String Converter
+2. **Create the Pixel record**:
+   ```ada
+   type Pixel_T is record
+      FC : Color_T;         -- Foreground Color
+      BC : Color_T;         -- Background Color
+      C  : WWChar_T;        -- Character
+      B  : Bold_T := False; -- Bold (default False)
+   end record;
+   ```
 
-We'll overload the `+` operator for clean, dense syntax. Add this signature to `noki.ads`:
+3. **Add colors for our game**:
+   ```ada
+   Deep_Navy     : Color_T := (13, 2, 33);
+   Hot_Tangerine : Color_T := (255, 122, 24);
+   Acid_Lime     : Color_T := (201, 255, 0);
+   Neon_Pink     : Color_T := (255, 102, 209);
+   ```
 
-```ada
-function "+" (P : Pixel_T) return WWStr_T;
-```
+## Organizing Game-Specific Code
 
-## 3. Start the Implementation
+The previous definitions are game-agnostic and belong in our library `noki.ads`. Now let's create things specific to our snake game.
 
-Edit `noki.adb` and add the function stub:
+**Why separate packages?** We could put everything in our main binary, but that rapidly clutters the code. A better approach is creating a specific package for our game to keep things organized and comprehensible.
 
-```ada
-function "+" (P : Pixel_T) return WWStr_T is
-begin
-   null;
-end "+";
-```
+4. **Create a Snake package** - make a new file `snake.ads` next to `snake_game.adb`:
+   ```ada
+   with Noki; use Noki;
+   package Snake is
 
-## 4. Add the Trim Helper Function
+   end Snake;
+   ```
 
-**Key insight:** When Ada converts numbers to strings, it systematically adds a space for the sign:
-- `-1` becomes `"-1"` (2 characters: `['-', '1']`)  
-- `1` becomes `" 1"` (2 characters: `[' ', '1']`), the space is for the implicit `+`
+Inside `snake.ads` add the following:
 
-We need to trim this leading space. Add this helper function before the `+` function:
+5. **Define snake characters** (showing different Unicode initializations):
+   ```ada
+   Tongue : constant WWChar_T := '~';                     -- ASCII literal
+   Head   : constant WWChar_T := WWChar_T'Val (16#25C0#); -- Unicode by hex value
+   Torso  : constant WWChar_T := '◆';                     -- Direct Unicode paste
+   ```
 
-```ada
-function Trim (S : String) return String is
-   (S (S'First + 1 .. S'Last));
-```
+6. **Create actual snake pixels**:
+   ```ada
+   Tongue_Pix : Pixel_T := (FC => Hot_Tangerine, 
+                            BC => Deep_Navy, 
+                            C  => Tongue, 
+                            B  => True);  
+   Head_Pix   : Pixel_T := (Acid_Lime, Deep_Navy, Head, True);
+   Torso_Pix  : Pixel_T := (Neon_Pink, Deep_Navy, Torso, True);
+   ```
 
-**Ada features used:**
-- Function expressions (skip `begin/end` for single expressions)
-- Array attributes: `'First` and `'Last` give array bounds
-- Range notation: `..` for slicing arrays
+## 📋 **Code Review - Complete Files**
 
-## 5. Build the Color Control Strings Step by Step
-
-**Remember:** We already defined the `CSI` constant at the top of `noki.ads`.
-
-Now let's build the ANSI control strings inside the `+` function. Add these constants between `is` and `begin`:
-
-**First, add the foreground color:**
-```ada
-FG_Color : constant String := CSI & "38;2;" & 
-                              Trim (P.FC.R'Image) & ";" & 
-                              Trim (P.FC.G'Image) & ";" & 
-                              Trim (P.FC.B'Image) & "m";
-```
-
-For RGB values like R=44, G=192, B=255, this creates: `"\e[38;2;44;192;255m"`
-
-::remark-box
----
-kind: info
----
-🤯 **Heads Up!** The ESC character (byte 27 or hex 16#1B#) has no glyph - that's why you see notations like `\e` or `^[` in documentation. These are just human-readable representations of the actual escape character.
-::
-
-**Next, add the background color** (same pattern, different code):
-```ada
-BG_Color : constant String := CSI & "48;2;" & 
-                              Trim (P.BC.R'Image) & ";" & 
-                              Trim (P.BC.G'Image) & ";" & 
-                              Trim (P.BC.B'Image) & "m";
-```
-
-**Add the bold control:**
-```ada
-BOLD : constant String := CSI & "1m";
-```
-
-**Add the reset control:**
-```ada
-RESET : constant String := CSI & "0m";
-```
-
-**Combine our pixel format conditionally:**
-```ada
-FORMAT : constant String := (if P.B then 
-                                FG_Color & BG_Color & BOLD 
-                             else 
-                                FG_Color & BG_Color);
-```
-
-## 6. Complete the Function
-
-Now we're ready to implement the function body using our building blocks. 
-
-**Understanding the type conversion:** Our function returns `WWStr_T` (Unicode string), and our pixel character `P.C` is already `WWChar_T` (Unicode). However, our ANSI control strings (`FORMAT`, `RESET`) are regular `String` type, so we need explicit conversion to satisfy Ada's strong typing.
-
-**Add the conversion package** at the top of `noki.adb`:
-```ada
-with Ada.Characters.Conversions;
-```
-
-**Complete the function** by replacing the `null;` line with:
-```ada
-return Ada.Characters.Conversions.To_Wide_Wide_String (FORMAT) & 
-       P.C & 
-       Ada.Characters.Conversions.To_Wide_Wide_String (RESET);
-```
-
-**Key insight:** We convert the String control codes to Wide_Wide_String, then concatenate with the Unicode character to create the complete formatted pixel string.
-
-## 💡 **Bonus: Function Renaming**
-
-As you can see, `Ada.Characters.Conversions.To_Wide_Wide_String` is verbose to write repeatedly. Ada allows you to rename functions for convenience!
-
-**Add this function rename** inside the `+` function (in the declarative section):
-```ada
-function WWS (S : String) return WWStr_T renames Ada.Characters.Conversions.To_Wide_Wide_String;
-```
-
-**Then simplify your return statement** to:
-```ada
-return WWS (FORMAT) & P.C & WWS (RESET);
-```
-
-**Why this works:** Function renames create an alias with the same signature, making your code cleaner while maintaining full type safety.
-
-## 📋 **Code Review - Complete `+` Function**
-
-Your complete implementation should look like this:
+Your `noki.ads` should include these game-agnostic types after `package Noki is`:
 
 ```ada
-function Trim (S : String) return String is
-   (S (S'First + 1 .. S'Last));
+subtype WWChar_T is Wide_Wide_Character;
 
-function "+" (P : Pixel_T) return WWStr_T is
-   BOLD     : constant String := CSI & "1m";
-   RESET    : constant String := CSI & "0m";
-   FG_Color : constant String := CSI & "38;2;" & 
-                                 Trim (P.FC.R'Image) & ";" & 
-                                 Trim (P.FC.G'Image) & ";" & 
-                                 Trim (P.FC.B'Image) & "m"; 
-   BG_Color : constant String := CSI & "48;2;" & 
-                                 Trim (P.BC.R'Image) & ";" & 
-                                 Trim (P.BC.G'Image) & ";" & 
-                                 Trim (P.BC.B'Image) & "m";
-   FORMAT   : constant String := (if P.B then 
-                                     FG_Color & BG_Color & BOLD 
-                                  else 
-                                     FG_Color & BG_Color);
-   function WWS (S : String) return WWStr_T 
-      renames Ada.Characters.Conversions.To_Wide_Wide_String;
-begin
-   return WWS (FORMAT) & P.C & WWS (RESET);
-end "+";
+type U8_T is mod 2 ** 8 with Size => 8;
+
+type Color_T is record
+   R, G, B : U8_T;
+end record with Size => 32;
+
+subtype Bold_T is Boolean;
+
+type Pixel_T is record
+   FC : Color_T;         -- Foreground Color
+   BC : Color_T;         -- Background Color
+   C  : WWChar_T;        -- Character
+   B  : Bold_T := False; -- Bold
+end record;
+
+Deep_Navy     : Color_T := (13, 2, 33);
+Hot_Tangerine : Color_T := (255, 122, 24);
+Acid_Lime     : Color_T := (201, 255, 0);
+Neon_Pink     : Color_T := (255, 102, 209);
 ```
 
+Your `snake.ads` should contain the snake-specific definitions:
 
-✅ **Expected result:** You can now convert any `Pixel_T` to a formatted terminal unicode string using the `+` operator!
+```ada
+with Noki; use Noki;
+package Snake is
+
+   Tongue : constant WWChar_T := '~';
+   Head   : constant WWChar_T := WWChar_T'Val (16#25C0#);
+   Torso  : constant WWChar_T := '◆';
+
+   Tongue_Pix : Pixel_T := (FC => Hot_Tangerine, 
+                            BC => Deep_Navy, 
+                            C  => Tongue, 
+                            B  => True);
+   Head_Pix   : Pixel_T := (Acid_Lime, Deep_Navy, Head, True);
+   Torso_Pix  : Pixel_T := (Neon_Pink, Deep_Navy, Torso, True);
+
+end Snake;
+```
+
+✅ **Expected result:** Clean separation between game library and snake-specific code!

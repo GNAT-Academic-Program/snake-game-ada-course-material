@@ -1,46 +1,26 @@
 ---
 kind: unit
 
-title: Create an Input Task
+title: Making Things Less Verbose
 
 name: 2-snake
 ---
 
-Let's create a thread to handle keyboard input! This will run concurrently with our game loop, allowing real-time user interaction.
+Let's reduce verbosity! Ada lets you control how explicit you want to be with package names. Instead of typing `Noki.` everywhere, we can create shorter aliases.
 
-1. **Declare a task type** in `noki.ads` before `end Noki;`:
+1. **Add a package rename** in `snake_game.adb`:
+   - Just under `procedure Snake_Game is`, add:
    ```ada
-   task type Input_Task_T;
+   package N renames Noki;
    ```
 
-2. **Implement the task body** in `noki.adb` before `end Noki;`:
-   ```ada
-   task body Input_Task_T is
-      C : Character := 'X';
-   begin
-      loop
-         Ada.Text_IO.Get_Immediate (C); -- blocking
-         Log ("Got a character: " & C'Image);
-      end loop;
-   end Input_Task_T;
-   ```
-
-::remark-box
----
-kind: info
----
-🤯 **Heads Up!** The task loops indefinitely, blocking until a character is available, then puts that char into C and loops again waiting for a new character. It logs the character using `C'Image` (Ada 2022 feature for String representation of any type).
-::
-
-3. **Use the input task** in `snake_game.adb`:
-   - Add a task variable in the declarative section (the task starts looping immediately):
-   ```ada
-   Input_Task : N.Input_Task_T;
-   ```
+2. **Replace all `Noki.` with `N.`** throughout your code:
+   - `Noki.Log (Noki.Clear_Screen);` becomes `N.Log (N.Clear_Screen);`
+   - Update all other `Noki.Log` calls to `N.Log`
 
 ## 📋 **Code Review - Complete `snake_game.adb`**
 
-Your complete `snake_game.adb` should now look like this:
+Your complete `snake_game.adb` should look like this:
 
 ```ada
 with Noki;
@@ -49,7 +29,6 @@ procedure Snake_Game is
    package N renames Noki;
    type Game_State_T is (Welcome, Play, Game_Over, Undefined);
    Game_State : Game_State_T := Welcome;
-   Input_Task : N.Input_Task_T;
 begin
    loop
       N.Log (N.Clear_Screen);
@@ -71,4 +50,11 @@ begin
 end Snake_Game;
 ```
 
-✅ **Expected result:** Your game now handles keyboard input concurrently! Press keys while the game runs to see "Got a character: ..." messages.
+✅ **Expected result:** Same behavior, less typing!
+
+::remark-box
+---
+kind: info
+---
+🤯 **Heads Up!** In large codebases, explicit package names (`Noki.Log`) are often more readable than short aliases (`N.Log`) or dropping the namespace entirely (`Log`). They show exactly where code comes from. Balance brevity with clarity based on your project's needs.
+::

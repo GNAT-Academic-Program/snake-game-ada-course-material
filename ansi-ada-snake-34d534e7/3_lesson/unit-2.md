@@ -1,69 +1,47 @@
 ---
 kind: unit
 
-title: Create a Custom Game State Type
+title: Add the Loop
 
 name: 2-snake
 ---
 
-Let's create our first user-defined Ada type! We'll use an enumeration to manage different game states.
+Let's create a game loop! This will handle our different gameplay states and keep the game running.
 
-1. **Add the type definition** to the **declarative part** of the Snake_Game procedure:
-   - After `procedure Snake_Game is` and before `begin`, add:
+1. **Edit `snake_game.adb`** to add a loop around the existing code
+
+2. **Add loop structure** around the `Noki.Log` call:
    ```ada
-   type Game_State_T is (Welcome, Play, Game_Over, Undefined);
-   Game_State : Game_State_T := Welcome;
+   loop
+      Noki.Log ("Welcome to my Snake Game!");
+   end loop;
    ```
 
-2. **Understanding the syntax:**
-   - First line creates a new enumeration type `Game_State_T` with four possible values
-   - Second line declares a variable `Game_State` of type `Game_State_T`, initialized to `Welcome`
-   - Ada syntax: `variable_name : variable_type := initial_value`
-
-3. **Replace the simple log with state handling:**
-   - Remove the `Noki.Log ("Welcome to my Snake Game!");` line
-   - Add a case statement between `loop` and `end loop`:
+3. **Add a delay** to slow down the loop so we can see the output:
+   - On the line after `Noki.Log ("Welcome to my Snake Game!")` add:
    ```ada
-   case Game_State is
-      when Welcome =>
-         Noki.Log ("Welcome to Snakotron!");
-         Game_State := Play;
-      when Play =>
-         Noki.Log ("We are playing.");
-         Game_State := Game_Over;
-      when Game_Over =>
-         Noki.Log ("Game Over!");
-         Game_State := Undefined;
-      when others =>
-         Noki.Log ("Press Ctrl+C to abort program!");
-   end case;
+   delay 1.0;
    ```
+
+**Your complete code inside the `Snake_Game` procedure should look like this:**
+```ada
+loop
+   Noki.Log ("Welcome to my Snake Game!");
+   delay 1.0;
+end loop;
+```
 
 ## 📋 **Code Review - Complete `snake_game.adb`**
 
-Your complete `snake_game.adb` should look exactly like this:
+Your complete file should look like this:
 
 ```ada
 with Noki;
 
 procedure Snake_Game is
-   type Game_State_T is (Welcome, Play, Game_Over, Undefined);
-   Game_State : Game_State_T := Welcome;
 begin
    loop
-      case Game_State is
-         when Welcome =>
-            Noki.Log ("Welcome to Snakotron!");
-            Game_State := Play;
-         when Play =>
-            Noki.Log ("We are playing.");
-            Game_State := Game_Over;
-         when Game_Over =>
-            Noki.Log ("Game Over!");
-            Game_State := Undefined;
-         when others =>
-            Noki.Log ("Press Ctrl+C to abort program!");
-      end case;
+      Noki.Log ("Welcome to my Snake Game!");
       delay 1.0;
    end loop;
 end Snake_Game;
@@ -74,18 +52,9 @@ end Snake_Game;
 alr run
 ```
 
-❌ **If something goes wrong:** Check that your case statement syntax matches exactly, including the `when` clauses and semicolons.
+❌ **If something goes wrong:** If you don't see `Build finished successfully in ...`, re-check the instructions carefully and start again from step 1.
 
-✅ **Expected result:** 
-```
-Build finished successfully in ... seconds.
-Welcome to Snakotron!
-We are playing.
-Game Over!
-Press Ctrl+C to abort program!
-Press Ctrl+C to abort program!
-...
-```
+✅ **Expected result:** `Welcome to my Snake Game!` appearing every second over and over.
 
 ::remark-box
 ---

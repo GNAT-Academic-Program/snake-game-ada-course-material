@@ -1,36 +1,47 @@
 ---
 kind: unit
 
-title: Control the Game Rendering Using ANSI Escape Codes
+title: Create a Custom Game State Type
 
 name: 3-snake
 ---
 
-Let's control our terminal rendering! Right now our output just appends to the terminal. For a proper game, we need to update what's displayed instead.
+Let's create our first user-defined Ada type! We'll use an enumeration to manage different game states.
 
-**Quick ANSI background:** ESC (ASCII 27, hex 0x1B) + `[` = Control Sequence Introducer (CSI). This tells the terminal "what follows is a command, not text to print."
-
-1. **Create a reusable CSI constant** in `noki.ads`:
-   - Before the `procedure Log (S : String);` line, add:
+1. **Add the type definition** to the **declarative part** of the Snake_Game procedure:
+   - After `procedure Snake_Game is` and before `begin`, add:
    ```ada
-   CSI : constant String := Character'Val (16#1B#) & '[';
+   type Game_State_T is (Welcome, Play, Game_Over, Undefined);
+   Game_State : Game_State_T := Welcome;
    ```
 
-2. **Add a screen clearing function** right after the CSI line:
-   ```ada
-   function Clear_Screen return String is (CSI & "2J" & CSI & "H");
-   ```
-   
-   This builds the ANSI command: clear screen (`2J`) + move cursor to home (`H`).
+2. **Understanding the syntax:**
+   - First line creates a new enumeration type `Game_State_T` with four possible values
+   - Second line declares a variable `Game_State` of type `Game_State_T`, initialized to `Welcome`
+   - Ada syntax: `variable_name : variable_type := initial_value`
 
-3. **Use it in our game loop** by opening `snake_game.adb` and adding this right after `loop`:
+3. **Replace the simple log with state handling:**
+   - Remove the `Noki.Log ("Welcome to my Snake Game!");` line
+   - Add a case statement between `loop` and `end loop`:
    ```ada
-   Noki.Log (Noki.Clear_Screen);
+   case Game_State is
+      when Welcome =>
+         Noki.Log ("Welcome to Snakotron!");
+         Game_State := Play;
+      when Play =>
+         Noki.Log ("We are playing.");
+         Game_State := Game_Over;
+      when Game_Over =>
+         Noki.Log ("Game Over!");
+         Game_State := Undefined;
+      when others =>
+         Noki.Log ("Press Ctrl+C to abort program!");
+   end case;
    ```
 
 ## 📋 **Code Review - Complete `snake_game.adb`**
 
-Your complete `snake_game.adb` should look like this:
+Your complete `snake_game.adb` should look exactly like this:
 
 ```ada
 with Noki;
@@ -40,7 +51,6 @@ procedure Snake_Game is
    Game_State : Game_State_T := Welcome;
 begin
    loop
-      Noki.Log (Noki.Clear_Screen);
       case Game_State is
          when Welcome =>
             Noki.Log ("Welcome to Snakotron!");
@@ -64,11 +74,22 @@ end Snake_Game;
 alr run
 ```
 
-✅ **Expected result:** Instead of scrolling text, you'll see only the current message updating in place as the game state advances.
+❌ **If something goes wrong:** Check that your case statement syntax matches exactly, including the `when` clauses and semicolons.
+
+✅ **Expected result:** 
+```
+Build finished successfully in ... seconds.
+Welcome to Snakotron!
+We are playing.
+Game Over!
+Press Ctrl+C to abort program!
+Press Ctrl+C to abort program!
+...
+```
 
 ::remark-box
 ---
-kind: info
+kind: warning
 ---
-🤯 **Heads Up!** The terminal now clears and redraws each frame - this is the foundation of all terminal-based games!
+🤯 **Heads Up!** This program will run forever! Use `Ctrl+C` in the terminal to stop it.
 ::
