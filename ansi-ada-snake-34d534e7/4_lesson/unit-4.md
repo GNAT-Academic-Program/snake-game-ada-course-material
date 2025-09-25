@@ -12,7 +12,7 @@ To keep your work safe and accessible, push it to your fork.
 
 **Make sure you're on your work branch:**
 ```bash
-git checkout -b lesson-4-work
+git checkout -b lesson-04-work
 ```
 
 **Stage and commit your progress:**
@@ -23,7 +23,7 @@ git commit -m "Lesson 4 progress"
 
 **Push to your fork:**
 ```bash
-git push origin lesson-4-work
+git push origin lesson-04-work
 ```
 
 ✅ **Expected result:** Your fork now has a lesson-4-work branch with your code so far.

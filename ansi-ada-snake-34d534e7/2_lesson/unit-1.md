@@ -46,7 +46,7 @@ kind: info
    cd snake-game-ada-course-code
    git remote add upstream https://github.com/GNAT-Academic-Program/snake-game-ada-course-code.git
    git fetch upstream --tags
-   git checkout -B lesson-02-branch refs/tags/lesson-02-start
+   git checkout -B lesson-02-work refs/tags/lesson-02-start
    ```
 
 
