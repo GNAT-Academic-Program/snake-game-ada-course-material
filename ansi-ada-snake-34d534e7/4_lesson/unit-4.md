@@ -25,6 +25,13 @@ Let's filter input to handle only the commands we need! We'll support Enter/Spac
 
    Input_Cmd : Input_Cmd_T;
    ```
+   
+::remark-box
+---
+kind: info
+---
+🤯 **Heads Up!** Protected objects handle concurrent access automatically - the runtime queues access calls to prevent data corruption between threads.
+::
 
 ## 📋 **Code Review - Complete `noki.ads`**
 
@@ -219,11 +226,10 @@ begin
 end Snake_Game;
 ```
 
-✅ **Expected result:** Game responds to Enter/Space (advance/replay) and Q/Esc (quit) keys only. Players can replay after Game Over. Pressing Q/Esc properly terminates the program.
+**Build and run:**
+```bash
+alr build
+bin/snake_game
+```
 
-::remark-box
----
-kind: info
----
-🤯 **Heads Up!** Protected objects handle concurrent access automatically - the runtime queues access calls to prevent data corruption between threads.
-::
+✅ **Expected result:** Game responds to Enter/Space (advance/replay) and Q/Esc (quit) keys only. Players can replay after Game Over. Pressing Q/Esc properly terminates the program.

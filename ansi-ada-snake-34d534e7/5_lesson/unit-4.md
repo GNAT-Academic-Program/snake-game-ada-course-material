@@ -135,4 +135,10 @@ begin
 end Snake_Game;
 ```
 
+**Build and run:**
+```bash
+alr build
+bin/snake_game
+```
+
 ✅ **Expected result:** Your snake pixels now appear on screen with full color and Unicode characters support during the Play state!

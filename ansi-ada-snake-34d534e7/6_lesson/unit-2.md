@@ -84,7 +84,7 @@ Let's build a proper texture system! Instead of manually calling `Draw (Torso_Pi
         (CSI & Trim (Row'Image) & ";" & Trim (Col'Image) & "H");
    begin
       for Y in T.First_Index .. T.Last_Index loop
-         Ada.Text_IO.Put (Move_Cursor (Y + 2, Positive'First));
+         Ada.Text_IO.Put (Move_Cursor (Y + 1, Positive'First));
          for X in T (Y).First_Index .. T (Y).Last_Index loop
             Draw (T (Y) (X));
          end loop;
@@ -111,6 +111,12 @@ Let's build a proper texture system! Instead of manually calling `Draw (Torso_Pi
                            [Empty_Pix,  Torso_Pix, Empty_Pix],
                            [Empty_Pix,  Torso_Pix, Torso_Pix]];
     ```
+::remark-box
+---
+kind: info
+---
+🤯 **Heads Up!** The double bracket syntax `[[...], [...]]` creates a 2D array literal. Each inner bracket is one row of pixels.
+::
 
 11. **Update the Play state** to use our new renderer:
     ```ada
@@ -144,12 +150,10 @@ Empty_Pix : Pixel_T := (Black, Black, ' ', False);
 
 procedure Render (T : Texture_T);
 ```
-
-::remark-box
----
-kind: info
----
-🤯 **Heads Up!** The double bracket syntax `[[...], [...]]` creates a 2D array literal. Each inner bracket is one row of pixels.
-::
+**Build and run:**
+```bash
+alr build
+bin/snake_game
+```
 
 ✅ **Expected result:** Your snake now renders as a proper 2D texture with clean, organized code!
