@@ -10,10 +10,20 @@ name: 5-snake
 
 To keep your work safe and accessible, push it to your fork.
 
+**Make sure you're at the root of the repo:**
+```bash
+cd ~/sandbox/snake-tutorial
+```
+
 **Make sure you're on your work branch:**
 ```bash
-git checkout -b lesson-04-work
+git status  
 ```
+ - 🚨 If you're **NOT** on branch `lesson-04-work`, run: 
+
+   ```bash
+   git checkout -b lesson-04-work  
+   ```
 
 **Stage and commit your progress:**
 ```bash

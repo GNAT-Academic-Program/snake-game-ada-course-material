@@ -49,7 +49,9 @@ end Snake_Game;
 
 **Build and run:**
 ```bash
-alr run
+cd ~/sandbox/snake-tutorial/noki/snake_game
+alr build
+bin/snake_game
 ```
 
 ❌ **If something goes wrong:** If you don't see `Build finished successfully in ...`, re-check the instructions carefully and start again from step 1.

@@ -71,7 +71,8 @@ end Snake_Game;
 
 **Build and run:**
 ```bash
-alr run
+alr build
+bin/snake_game
 ```
 
 ❌ **If something goes wrong:** Check that your case statement syntax matches exactly, including the `when` clauses and semicolons.

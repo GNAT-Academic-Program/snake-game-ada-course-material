@@ -61,7 +61,8 @@ end Snake_Game;
 
 **Build and run:**
 ```bash
-alr run
+alr build
+bin/snake_game
 ```
 
 ✅ **Expected result:** Instead of scrolling text, you'll see only the current message updating in place as the game state advances.
